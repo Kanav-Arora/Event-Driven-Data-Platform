@@ -1,1 +1,6 @@
 *.env
+source-data/data-generator.ipynb
+*.pyc
+__pycache__/
+venv/
+.env.local

@@ -2,26 +2,27 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS customers (
     cust_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cust_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    country VARCHAR(50),
-    region VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    cust_name VARCHAR(100) NOT NULL,
+    cust_email VARCHAR(100) UNIQUE NOT NULL,
+    cust_address VARCHAR,
+    cust_city VARCHAR(100),
+    cust_country VARCHAR(100),
+    cust_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS products (
     product_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_name VARCHAR(50) NOT NULL,
-    category VARCHAR(50) NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    product_description VARCHAR,
+    category VARCHAR(100) NOT NULL,
     price NUMERIC(10,2) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS warehouses (
     warehouse_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    warehouse_name VARCHAR(50) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    district VARCHAR(50) NOT NULL,
-    country VARCHAR(50) NOT NULL
+    warehouse_name VARCHAR(100) NOT NULL,
+    warehouse_city VARCHAR(100) NOT NULL,
+    warehouse_country VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS inventory (
