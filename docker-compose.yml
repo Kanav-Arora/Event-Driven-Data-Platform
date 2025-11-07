@@ -8,20 +8,108 @@ services:
       - ./postgres:/docker-entrypoint-initdb.d
     ports:
       - "${POSTGRES_PORT}:5432"
-  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - main
+  data-generator:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.data-generator
+    container_name: data-generator
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    networks:
+      - main
   zookeeper:
-    image: zookeeper:3.9
+    image: confluentinc/cp-zookeeper:7.6.1
     container_name: zookeeper
     restart: unless-stopped
     env_file: .env
     ports:
-      - "${ZOOKEEPER_PORT}:2181"
+      - "2181:2181"
+    networks:
+      - main
   kafka:
-    image: apache/kafka:3.7.1 
+    image: confluentinc/cp-kafka:7.6.1
     container_name: kafka
     env_file: .env
-    restart: unless-stopped
     ports:
-      - "${KAFKA_PORT}:9092"
+      - "9092:9092"
     depends_on:
       - zookeeper
+    networks:
+      - main
+  debezium:
+    image: debezium/connect:2.7.3.Final
+    container_name: debezium
+    restart: unless-stopped
+    depends_on:
+      - kafka
+      - postgres
+    env_file: .env
+    ports:
+      - "8083:8083"
+    networks:
+      - main
+
+  flink-jobmanager:
+      build:
+          context: .
+          dockerfile: ./docker/Dockerfile.flink
+      container_name: flink-jobmanager
+      command: jobmanager
+      ports:
+          - '8081:8081'
+      environment:
+          - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      networks:
+          - main
+      profiles: [donotstart]
+  flink-taskmanager:
+      build:
+          context: .
+          dockerfile: ./docker/Dockerfile.flink
+      container_name: flink-taskmanager
+      command: taskmanager
+      depends_on:
+          - flink-jobmanager
+      environment:
+          - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      networks:
+          - main
+      profiles: [donotstart]
+  jupyter:
+      build:
+          context: .
+          dockerfile: ./docker/Dockerfile.jupyter
+      container_name: jupyter
+      ports:
+          - '8888:8888'
+      volumes:
+          - ./jupyter/notebooks:/home/jovyan/work
+          - ./jupyter/connectors:/opt/flink/usrlib
+      environment:
+          - JUPYTER_TOKEN=easy
+
+  fastapi:
+      build:
+          context: .
+          dockerfile: ./docker/Dockerfile.fastapi
+      container_name: fastapi
+      ports:
+          - '8000:8000'
+      volumes:
+        - ./event-emitter:/app
+      networks:
+          - main
+
+networks:
+  main:
+    driver: bridge
