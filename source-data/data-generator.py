@@ -111,7 +111,7 @@ for _ in warehouses:
         print(f"Skipping record {_}: {e}")
         conn.rollback()
 
-# Populating Inventory and Inventory Events Tables
+# Populating Inventory
 cursor.execute("""SELECT product_id, warehouse_id from 
                (SELECT product_id from products) AS p 
                CROSS JOIN (SELECT warehouse_id from warehouses) AS w
@@ -136,21 +136,6 @@ for row in rows:
                 quantity
             )
         )
-
-        inventory_id = cursor.fetchone()[0]
-
-        cursor.execute(
-                """
-                INSERT INTO inventory_events 
-                (inventory_id, event_type, quantity_change)
-                VALUES (%s, %s, %s)
-                """,
-                (
-                    inventory_id,
-                    "RESTOCK",
-                    quantity
-                )
-            )
         conn.commit()
     except Exception as e:
         print(f"Skipping record {row}: {e}")

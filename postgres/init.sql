@@ -34,10 +34,35 @@ CREATE TABLE IF NOT EXISTS inventory (
     UNIQUE (product_id, warehouse_id)
 );
 
-CREATE TABLE inventory_events (
-    event_id BIGSERIAL PRIMARY KEY,
-    inventory_id UUID NOT NULL REFERENCES inventory(inventory_id),
-    event_type TEXT NOT NULL CHECK (event_type IN ('SALE', 'RESTOCK','RETURN','DISCONTINUE')),
-    quantity_change INT NOT NULL,
-    timestamp TIMESTAMP DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS orders (
+    order_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cust_id UUID NOT NULL REFERENCES customers(cust_id),
+    order_status TEXT NOT NULL CHECK (order_status IN (
+        'CREATED', 
+        'VALIDATED', 
+        'PAID', 
+        'PACKED',
+        'SHIPPED',
+        'DELIVERED',
+        'CANCELLED'
+    )),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    order_item_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(product_id),
+    quantity INT NOT NULL CHECK (quantity > 0),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    aggregate_type VARCHAR(50) NOT NULL,
+    aggregate_id UUID NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
+    payload JSONB NOT NULL,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
