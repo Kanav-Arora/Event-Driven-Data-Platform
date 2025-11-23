@@ -46,6 +46,7 @@ conn = psycopg2.connect(
     host=os.getenv("POSTGRES_HOST_INTERNAL"),
     port=os.getenv("POSTGRES_PORT")
 )
+
 cursor = conn.cursor()
 
 # Populating Customers Table
