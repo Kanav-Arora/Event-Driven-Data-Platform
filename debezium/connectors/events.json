@@ -1,0 +1,29 @@
+{
+    "name": "events-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "inventory_user",
+        "database.password": "inventory_pass",
+        "database.dbname": "inventory_db",
+        "database.server.name": "inventory-db",
+        "plugin.name": "pgoutput",
+        "slot.name": "events_slot",
+        "publication.name": "dbz_publication",
+        "publication.autocreate.mode": "filtered",
+        "publication.tables": "public.events",
+        "table.include.list": "public.events",
+        "value.converter.schemas.enable": "false",
+        "key.converter.schemas.enable": "false",
+        "transforms": "outbox",
+        "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+        "topic.prefix": "events",
+        "transforms.outbox.table.field.event.id": "event_id",
+        "transforms.outbox.route.by.field": "aggregate_type",
+        "transforms.outbox.table.field.event.key": "aggregate_id",
+        "transforms.outbox.table.field.event.type": "event_type",
+        "transforms.outbox.table.field.event.payload": "payload",
+        "transforms.outbox.route.topic.replacement": "${routedByValue}.events"
+    }
+}
