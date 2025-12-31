@@ -1,4 +1,0 @@
-FROM flink:1.17.2-scala_2.12-java11
-
-RUN mkdir -p /opt/flink/usrlib && \
-    wget -P /opt/flink/usrlib https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-kafka/1.17.2/flink-connector-kafka-1.17.2.jar

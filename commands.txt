@@ -1,5 +1,11 @@
 - Creating events.json connector
 curl -X POST -H "Content-Type: application/json" --data @debezium/connectors/events.json http://localhost:8083/connectors
 
+- Creating inventory.json connector
+curl -X POST -H "Content-Type: application/json" --data @debezium/connectors/inventory.json http://localhost:8083/connectors
+
 - Verify registered connectors
 curl http://localhost:8083/connectors
+
+- List Topics
+docker exec -it kafka kafka-topics --list --bootstrap-server localhost:9092
