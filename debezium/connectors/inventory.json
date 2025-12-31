@@ -1,0 +1,38 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "plugin.name": "pgoutput",
+
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "inventory_user",
+        "database.password": "inventory_pass",
+        "database.dbname": "inventory_db",
+
+        "topic.prefix": "events",
+
+        "schema.include.list": "public",
+        "table.include.list": "public.inventory",
+
+        "slot.name": "inventory_slot",
+        "publication.name": "inventory_pub",
+
+        "snapshot.mode": "initial",
+        "include.schema.changes": "false",
+        "heartbeat.interval.ms": "10000",
+
+        "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+        "schema.history.internal.kafka.topic": "schemahistory.inventory",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false",
+
+        "transforms": "RenameTopic",
+        "transforms.RenameTopic.type": "org.apache.kafka.connect.transforms.RegexRouter",
+        "transforms.RenameTopic.regex": "events\\.public\\.inventory",
+        "transforms.RenameTopic.replacement": "inventory.events"
+    }
+}
