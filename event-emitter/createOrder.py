@@ -65,10 +65,8 @@ def createOrder(conn):
                                     ),
                             )
                 event_id = cursor.fetchone()[0]
-                
-                return {"status": 200, "message" : "Success", "payload": {
-                    "event_id": event_id
-                } }
+                event_payload["event_id"] = event_id
+                return {"status": 200, "message" : "Success", "payload": event_payload }
     
     except Exception as e:
         conn.rollback()

@@ -6,3 +6,5 @@ venv/
 .env.local
 temp.ipynb
 *.ipynb_checkpoints
+.idea
+.vscode

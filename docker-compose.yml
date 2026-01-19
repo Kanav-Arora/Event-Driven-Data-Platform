@@ -76,27 +76,27 @@ services:
       - ./debezium/connectors:/kafka/connect/etc/connector-templates
 
   flink-jobmanager:
-      build:
-          context: ./docker/flink/
-          dockerfile: ./Dockerfile.flink
+      image: flink:1.17.2-scala_2.12-java11
       container_name: flink-jobmanager
       command: jobmanager
       ports:
           - '8081:8081'
       environment:
           - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      volumes:
+        - ./flink-pipeline/target:/opt/flink/usrlib
       networks:
           - main
   flink-taskmanager:
-      build:
-          context: ./docker/flink/
-          dockerfile: ./Dockerfile.flink
+      image: flink:1.17.2-scala_2.12-java11
       container_name: flink-taskmanager
       command: taskmanager
       depends_on:
           - flink-jobmanager
       environment:
           - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      volumes:
+        - ./flink-pipeline/target:/opt/flink/usrlib
       networks:
           - main
   jupyter:
@@ -139,73 +139,75 @@ services:
     volumes:
       - ./docs:/app/docs
       - ./mkdocs.yml:/app/mkdocs.yml
+    environment:
+      - MKDOCS_WATCHDOG=1
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.79.0
-    container_name: otel-collector
-    volumes:
-      - ./observability/otel/otel-collector.yaml:/etc/otel-collector-config.yaml:ro
-    command: ["--config", "/etc/otel-collector-config.yaml"]
-    ports:
-      - "4318:4318"
-      - "9464:9464"
-    networks:
-      - observability
+  # otel-collector:
+  #   image: otel/opentelemetry-collector-contrib:0.79.0
+  #   container_name: otel-collector
+  #   volumes:
+  #     - ./observability/otel/otel-collector.yaml:/etc/otel-collector-config.yaml:ro
+  #   command: ["--config", "/etc/otel-collector-config.yaml"]
+  #   ports:
+  #     - "4318:4318"
+  #     - "9464:9464"
+  #   networks:
+  #     - observability
 
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./observability/prometheus:/prometheus
-    ports:
-      - "9090:9090"
-    depends_on: [otel-collector]
-    networks:
-      - observability
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #     - ./observability/prometheus:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   depends_on: [otel-collector]
+  #   networks:
+  #     - observability
 
-  loki:
-    image: grafana/loki:2.9.1
-    container_name: loki
-    volumes:
-      - ./observability/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
-      - ./observability/loki:/loki
-    ports:
-      - "3100:3100"
-    networks:
-      - observability
+  # loki:
+  #   image: grafana/loki:2.9.1
+  #   container_name: loki
+  #   volumes:
+  #     - ./observability/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+  #     - ./observability/loki:/loki
+  #   ports:
+  #     - "3100:3100"
+  #   networks:
+  #     - observability
 
-  tempo:
-    image: grafana/tempo:1.5.0
-    container_name: tempo
-    volumes:
-      - ./observability/tempo/tempo-config.yaml:/etc/tempo/config.yaml:ro
-      - ./observability/tempo:/var/tempo
-    ports:
-      - "3200:3200"
-      - "4317:4317"
-    networks:
-      - observability
+  # tempo:
+  #   image: grafana/tempo:1.5.0
+  #   container_name: tempo
+  #   volumes:
+  #     - ./observability/tempo/tempo-config.yaml:/etc/tempo/config.yaml:ro
+  #     - ./observability/tempo:/var/tempo
+  #   ports:
+  #     - "3200:3200"
+  #     - "4317:4317"
+  #   networks:
+  #     - observability
 
-  grafana:
-    image: grafana/grafana:10.0.0
-    container_name: grafana
-    env_file: .env
-    ports:
-      - "3000:3000"
-    depends_on: [prometheus, loki, tempo]
-    volumes:
-      - ./observability/grafana:/var/lib/grafana
-    networks:
-      - observability
+  # grafana:
+  #   image: grafana/grafana:10.0.0
+  #   container_name: grafana
+  #   env_file: .env
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on: [prometheus, loki, tempo]
+  #   volumes:
+  #     - ./observability/grafana:/var/lib/grafana
+  #   networks:
+  #     - observability
 
-  marquez:
-    image: marquezproject/marquez:0.22.0
-    container_name: marquez
-    ports:
-      - "5001:5000"
-    networks:
-      - observability
+  # marquez:
+  #   image: marquezproject/marquez:0.22.0
+  #   container_name: marquez
+  #   ports:
+  #     - "5001:5000"
+  #   networks:
+  #     - observability
     
 networks:
   main:
