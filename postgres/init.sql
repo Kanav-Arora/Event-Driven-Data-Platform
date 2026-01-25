@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS orders (
         'PACKED',
         'SHIPPED',
         'DELIVERED',
-        'CANCELLED'
+        'CANCELLED',
+        'REJECTED'
     )),
     created_at TIMESTAMP DEFAULT NOW()
 );
