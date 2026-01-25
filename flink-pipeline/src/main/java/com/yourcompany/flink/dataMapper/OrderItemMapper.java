@@ -4,14 +4,16 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yourcompany.flink.models.OrderDeserializedEvent;
 import com.yourcompany.flink.models.OrderItemEvent;
 
-public class OrderItemMapper implements FlatMapFunction<String, OrderItemEvent> {
+public class OrderItemMapper implements FlatMapFunction<OrderDeserializedEvent, OrderItemEvent> {
     public static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public void flatMap(String value, Collector<OrderItemEvent> out) throws Exception {
-        JsonNode root = mapper.readTree(value);
+    public void flatMap(OrderDeserializedEvent deserialized_event, Collector<OrderItemEvent> out) throws Exception {
+
+        JsonNode root = mapper.readTree(deserialized_event.getPayload());
 
         JsonNode payload = mapper.readTree(root.get("payload").asText());
 
@@ -24,6 +26,8 @@ public class OrderItemMapper implements FlatMapFunction<String, OrderItemEvent> 
 
             OrderItemEvent event = new OrderItemEvent(
                     "Order",
+                    deserialized_event.getEventType(),
+                    deserialized_event.getAggregateType(),
                     orderId,
                     item.get("inventory_id").asText(),
                     item.get("quantity").asInt(),

@@ -34,14 +34,19 @@ public class InventoryOrderValidationState
     @Override
     public void processElement2(OrderItemEvent event, Context ctx, Collector<ValidatedEvent> out) throws Exception {
         Integer available_qty = inventoryState.value();
+        int quantity = event.getQuantity();
         OrderValidationStatus status;
-        if (available_qty == null) {
-            status = OrderValidationStatus.INVALID;
-        } else if (available_qty.intValue() >= event.getQuantity()) {
-            status = OrderValidationStatus.ACCEPTED;
-        } else
-            status = OrderValidationStatus.REJECTED;
+        if ("create-order".equals(event.getEventType())) {
+            if (available_qty == null) {
+                status = OrderValidationStatus.INVALID;
+            } else if (available_qty.intValue() >= quantity) {
+                status = OrderValidationStatus.ACCEPTED;
+                inventoryState.update(available_qty.intValue() - quantity);
+            } else
+                status = OrderValidationStatus.REJECTED;
 
-        out.collect(ValidatedEvent.order(event, status));
+            out.collect(ValidatedEvent.order(event, status));
+        }
+
     }
 }

@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class OrderItemEvent implements Serializable {
     private String source;
+    private String aggregateType;
+    private String eventType;
     private String order_id;
     private String inventory_id;
     private int quantity;
@@ -12,8 +14,12 @@ public class OrderItemEvent implements Serializable {
     public OrderItemEvent() {
     }
 
-    public OrderItemEvent(String source, String order_id, String inventory_id, int quantity, int total_items) {
+    public OrderItemEvent(String source, String eventType, String aggregateType, String order_id, String inventory_id,
+            int quantity,
+            int total_items) {
         this.source = source;
+        this.eventType = eventType;
+        this.aggregateType = aggregateType;
         this.order_id = order_id;
         this.inventory_id = inventory_id;
         this.quantity = quantity;
@@ -26,6 +32,22 @@ public class OrderItemEvent implements Serializable {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public String getAggregateType() {
+        return aggregateType;
+    }
+
+    public void setAggregateType(String aggregateType) {
+        this.aggregateType = aggregateType;
     }
 
     public String getOrderId() {

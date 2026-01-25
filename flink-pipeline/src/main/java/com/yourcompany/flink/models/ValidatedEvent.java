@@ -6,6 +6,8 @@ import com.yourcompany.flink.statics.OrderValidationStatus;
 
 public class ValidatedEvent implements Serializable {
     private String source;
+    private String eventType;
+    private String aggregateType;
     private String order_id;
     private String inventory_id;
     private int quantity;
@@ -31,6 +33,8 @@ public class ValidatedEvent implements Serializable {
     public static ValidatedEvent order(OrderItemEvent event, OrderValidationStatus status) {
         ValidatedEvent r = new ValidatedEvent();
         r.source = event.getSource();
+        r.eventType = event.getEventType();
+        r.aggregateType = event.getAggregateType();
         r.order_id = event.getOrderId();
         r.inventory_id = event.getInventoryId();
         r.quantity = event.getQuantity();
@@ -41,6 +45,14 @@ public class ValidatedEvent implements Serializable {
 
     public String getSource() {
         return source;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public String getAggregateType() {
+        return aggregateType;
     }
 
     public String getOrderId() {
